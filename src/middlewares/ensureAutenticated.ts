@@ -11,7 +11,7 @@ export async function ensureAuthenticatedMiddleware(
   next: NextFunction
 ) {
   const authorization = req.headers["authorization"];
-  if (!authorization) throw handleErrors.unauthorizedError("authorization");
+  if (!authorization) throw handleErrors.unauthorizedError("authorization key");
 
   const token = authorization.replace("Bearer ", "");
   if (!token) throw handleErrors.unauthorizedError("token");

@@ -9,9 +9,9 @@ dotenv.config();
 
 export type CreateUserData = Omit<Users, "id">;
 async function signUp(createUserData: CreateUserData) {
-  const existingUser = userRepository.findByEmail(createUserData.email);
+  const existingUser = await userRepository.findByEmail(createUserData.email);
 
-  if (existingUser !== null) throw handleErrors.conflictError("email");
+  if (existingUser) throw handleErrors.conflictError("email");
 
   const hashedPassword = bcrypt.hashSync(createUserData.password, 12);
 
