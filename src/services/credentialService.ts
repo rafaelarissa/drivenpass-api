@@ -26,7 +26,7 @@ async function create(
 async function get(credentialId: number, userId: number) {
   await validateUser(userId);
 
-  if (credentialId) await getCredentialById(credentialId);
+  if (credentialId) return await getCredentialById(credentialId);
 
   const credentials = await credentialRepository.findMany();
   if (!credentials) throw handleErrors.notFoundError("credential");

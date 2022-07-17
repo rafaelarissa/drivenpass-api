@@ -15,11 +15,44 @@ async function create(
   });
 }
 
+async function get(safeNoteId: number, userId: number) {
+  await validateUser(userId);
+
+  if (safeNoteId) return await getSafeNoteById(safeNoteId);
+
+  const safeNotes = await safeNotesRepository.findMany();
+  if (!safeNotes) throw handleErrors.notFoundError("safe note");
+
+  return [...safeNotes];
+}
+
+async function getSafeNoteById(safeNoteId: number) {
+  const safeNote = await safeNotesRepository.getById(safeNoteId);
+
+  if (!safeNote) throw handleErrors.notFoundError("safe note");
+
+  return safeNote;
+}
+
+async function deleteSafeNote(safeNoteId: number) {
+  const safeNote = await getSafeNoteById(safeNoteId);
+
+  await validateUser(safeNote.userId);
+
+  await safeNotesRepository.deleteSafeNote(safeNoteId);
+}
+
+async function validateUser(id: number) {
+  const credentialUser = await safeNotesRepository.getByUserId(id);
+
+  if (!credentialUser) throw handleErrors.badRequestError("safe note");
+}
+
 async function validateTitle(title: string) {
   const credential = await safeNotesRepository.getByTitle(title);
 
   if (credential) throw handleErrors.conflictError("title");
 }
 
-const safeNotesService = { create };
+const safeNotesService = { create, get, deleteSafeNote };
 export default safeNotesService;

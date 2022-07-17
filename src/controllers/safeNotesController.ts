@@ -10,3 +10,19 @@ export async function create(req: Request, res: Response) {
   await safeNotesService.create(safeNotes, userId);
   res.sendStatus(201);
 }
+
+export async function get(req: Request, res: Response) {
+  const userId = res.locals.user.id;
+  const { id } = req.query;
+
+  const safeNotes = await safeNotesService.get(Number(id), userId);
+
+  res.send(safeNotes);
+}
+
+export async function deleteSafeNote(req: Request, res: Response) {
+  const { id } = req.params;
+
+  await safeNotesService.deleteSafeNote(Number(id));
+  res.sendStatus(200);
+}
