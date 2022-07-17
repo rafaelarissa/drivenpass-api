@@ -11,4 +11,16 @@ async function getByTitle(title: string) {
   return prisma.crendentials.findUnique({ where: { title } });
 }
 
-export default { insert, getByTitle };
+async function findMany() {
+  return prisma.crendentials.findMany();
+}
+
+async function getById(id: number) {
+  return prisma.crendentials.findUnique({ where: { id } });
+}
+
+async function getByUserId(userId: number) {
+  return prisma.crendentials.findFirst({ where: { userId } });
+}
+
+export default { insert, getByTitle, findMany, getById, getByUserId };

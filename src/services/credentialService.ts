@@ -27,5 +27,43 @@ async function create(
   });
 }
 
-const credentialService = { create };
+async function get(credentialId: number, userId: number) {
+  await searchUserById(userId);
+
+  if (credentialId) await getCredentialById(credentialId);
+
+  const credentials = await credentialRepository.findMany();
+  if (!credentials) throw handleErrors.notFoundError("credential");
+
+  credentials.map((credential) => {
+    credential.password = decryptPassword(credential.password);
+  });
+
+  return { ...credentials };
+}
+
+async function getCredentialById(credentialId: number) {
+  const credential = await credentialRepository.getById(credentialId);
+  console.log(credential);
+
+  if (!credential) throw handleErrors.notFoundError("credential");
+
+  const decryptedPassword = decryptPassword(credential.password);
+
+  return { ...credential, password: decryptedPassword };
+}
+
+function decryptPassword(password: string) {
+  const decryptedPassword = cryptr.decrypt(password);
+
+  return decryptedPassword;
+}
+
+async function searchUserById(id: number) {
+  const credentialUser = await credentialRepository.getByUserId(id);
+
+  if (!credentialUser) throw handleErrors.badRequestError("credential");
+}
+
+const credentialService = { create, get };
 export default credentialService;
