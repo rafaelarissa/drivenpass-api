@@ -25,7 +25,7 @@ async function create(createCardData: CreateCardData, userId: number) {
 async function get(cardId: number, userId: number) {
   await validateUser(userId);
 
-  if (cardId) return await getCredentialById(cardId);
+  if (cardId) return await getCardById(cardId);
 
   const cards = await cardRepository.findMany();
   if (!cards) throw handleErrors.notFoundError("card");
@@ -33,7 +33,7 @@ async function get(cardId: number, userId: number) {
   return [...cards];
 }
 
-async function getCredentialById(cardId: number) {
+async function getCardById(cardId: number) {
   const card = await cardRepository.getById(cardId);
 
   if (!card) throw handleErrors.notFoundError("card");
@@ -42,7 +42,7 @@ async function getCredentialById(cardId: number) {
 }
 
 async function deleteCard(cardId: number) {
-  const card = await getCredentialById(cardId);
+  const card = await getCardById(cardId);
 
   await validateUser(card.userId);
 
