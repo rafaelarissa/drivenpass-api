@@ -23,4 +23,15 @@ async function getByUserId(userId: number) {
   return prisma.cards.findFirst({ where: { userId } });
 }
 
-export default { insert, getByTitle, findMany, getById, getByUserId };
+async function deleteCard(id: number) {
+  return prisma.cards.delete({ where: { id } });
+}
+
+export default {
+  insert,
+  getByTitle,
+  findMany,
+  getById,
+  getByUserId,
+  deleteCard,
+};

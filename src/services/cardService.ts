@@ -41,6 +41,14 @@ async function getCredentialById(cardId: number) {
   return card;
 }
 
+async function deleteCard(cardId: number) {
+  const card = await getCredentialById(cardId);
+
+  await validateUser(card.userId);
+
+  await cardRepository.deleteCard(cardId);
+}
+
 async function validateUser(id: number) {
   const cardUser = await cardRepository.getByUserId(id);
 
@@ -53,5 +61,5 @@ async function validateTitle(title: string) {
   if (card) throw handleErrors.conflictError("title");
 }
 
-const cardService = { create, get };
+const cardService = { create, get, deleteCard };
 export default cardService;

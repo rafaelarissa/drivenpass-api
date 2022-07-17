@@ -17,3 +17,10 @@ export async function get(req: Request, res: Response) {
 
   res.send(cards);
 }
+
+export async function deleteCard(req: Request, res: Response) {
+  const { id } = req.params;
+
+  await cardService.deleteCard(Number(id));
+  res.sendStatus(200);
+}
