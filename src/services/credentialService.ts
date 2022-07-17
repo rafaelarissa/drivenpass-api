@@ -28,7 +28,7 @@ async function create(
 }
 
 async function get(credentialId: number, userId: number) {
-  await searchUserById(userId);
+  await validateUser(userId);
 
   if (credentialId) await getCredentialById(credentialId);
 
@@ -44,7 +44,6 @@ async function get(credentialId: number, userId: number) {
 
 async function getCredentialById(credentialId: number) {
   const credential = await credentialRepository.getById(credentialId);
-  console.log(credential);
 
   if (!credential) throw handleErrors.notFoundError("credential");
 
@@ -59,7 +58,7 @@ function decryptPassword(password: string) {
   return decryptedPassword;
 }
 
-async function searchUserById(id: number) {
+async function validateUser(id: number) {
   const credentialUser = await credentialRepository.getByUserId(id);
 
   if (!credentialUser) throw handleErrors.badRequestError("credential");
