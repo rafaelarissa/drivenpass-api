@@ -8,3 +8,12 @@ export async function create(req: Request, res: Response) {
   await cardService.create(cards, userId);
   res.sendStatus(201);
 }
+
+export async function get(req: Request, res: Response) {
+  const userId = res.locals.user.id;
+  const { id } = req.query;
+
+  const cards = await cardService.get(Number(id), userId);
+
+  res.send(cards);
+}

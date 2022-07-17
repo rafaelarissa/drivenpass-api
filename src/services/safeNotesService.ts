@@ -43,15 +43,15 @@ async function deleteSafeNote(safeNoteId: number) {
 }
 
 async function validateUser(id: number) {
-  const credentialUser = await safeNotesRepository.getByUserId(id);
+  const safeNoteUser = await safeNotesRepository.getByUserId(id);
 
-  if (!credentialUser) throw handleErrors.badRequestError("safe note");
+  if (!safeNoteUser) throw handleErrors.badRequestError("safe note");
 }
 
 async function validateTitle(title: string) {
-  const credential = await safeNotesRepository.getByTitle(title);
+  const safeNote = await safeNotesRepository.getByTitle(title);
 
-  if (credential) throw handleErrors.conflictError("title");
+  if (safeNote) throw handleErrors.conflictError("title");
 }
 
 const safeNotesService = { create, get, deleteSafeNote };

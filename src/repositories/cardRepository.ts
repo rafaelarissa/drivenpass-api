@@ -11,4 +11,16 @@ async function getByTitle(title: string) {
   return prisma.cards.findFirst({ where: { title } });
 }
 
-export default { insert, getByTitle };
+async function findMany() {
+  return prisma.cards.findMany();
+}
+
+async function getById(id: number) {
+  return prisma.cards.findUnique({ where: { id } });
+}
+
+async function getByUserId(userId: number) {
+  return prisma.cards.findFirst({ where: { userId } });
+}
+
+export default { insert, getByTitle, findMany, getById, getByUserId };
