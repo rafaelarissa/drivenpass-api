@@ -19,3 +19,10 @@ export async function get(req: Request, res: Response) {
 
   res.send(credentials);
 }
+
+export async function deleteCredential(req: Request, res: Response) {
+  const { id } = req.params;
+
+  await credentialService.deleteCredential(Number(id));
+  res.sendStatus(200);
+}

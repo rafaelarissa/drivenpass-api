@@ -12,11 +12,7 @@ async function create(
   createCredentialData: CreateCredentialData,
   userId: number
 ) {
-  const title = await credentialRepository.getByTitle(
-    createCredentialData.title
-  );
-
-  if (title) throw handleErrors.conflictError("title");
+  await validateTitle(createCredentialData.title);
 
   const encryptedPassword = cryptr.encrypt(createCredentialData.password);
 
@@ -52,6 +48,14 @@ async function getCredentialById(credentialId: number) {
   return { ...credential, password: decryptedPassword };
 }
 
+async function deleteCredential(credentialId: number) {
+  const credential = await getCredentialById(credentialId);
+
+  await validateUser(credential.userId);
+
+  await credentialRepository.deleteCredential(credentialId);
+}
+
 function decryptPassword(password: string) {
   const decryptedPassword = cryptr.decrypt(password);
 
@@ -64,5 +68,11 @@ async function validateUser(id: number) {
   if (!credentialUser) throw handleErrors.badRequestError("credential");
 }
 
-const credentialService = { create, get };
+async function validateTitle(title: string) {
+  const credential = await credentialRepository.getByTitle(title);
+
+  if (credential) throw handleErrors.conflictError("title");
+}
+
+const credentialService = { create, get, deleteCredential };
 export default credentialService;

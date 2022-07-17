@@ -8,7 +8,7 @@ async function insert(createCredentialData: CreateCredentialData) {
 }
 
 async function getByTitle(title: string) {
-  return prisma.crendentials.findUnique({ where: { title } });
+  return prisma.crendentials.findFirst({ where: { title } });
 }
 
 async function findMany() {
@@ -23,4 +23,15 @@ async function getByUserId(userId: number) {
   return prisma.crendentials.findFirst({ where: { userId } });
 }
 
-export default { insert, getByTitle, findMany, getById, getByUserId };
+async function deleteCredential(id: number) {
+  return prisma.crendentials.delete({ where: { id } });
+}
+
+export default {
+  insert,
+  getByTitle,
+  findMany,
+  getById,
+  getByUserId,
+  deleteCredential,
+};

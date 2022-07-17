@@ -31,7 +31,7 @@ model Cards {
   isVirtual      Boolean
   password       String
   type           Type
-  title          String  @unique
+  title          String
   users          Users   @relation(fields: [userId], references: [id])
   userId         Int
 
@@ -39,14 +39,14 @@ model Cards {
 }
 
 enum Type {
-  DEBIT
-  CREDIT
-  BOTH
+  debit
+  credit
+  multiple
 }
 
 model SafeNotes {
   id     Int    @id @default(autoincrement())
-  title  String @unique
+  title  String
   note   String
   users  Users  @relation(fields: [userId], references: [id])
   userId Int
@@ -60,7 +60,7 @@ model Wifi {
   password String
   users    Users  @relation(fields: [userId], references: [id])
   userId   Int
-  title    String @unique
+  title    String
 
   @@map("wifi's")
 }
@@ -70,7 +70,7 @@ model Crendentials {
   url      String
   username String
   password String
-  title    String @unique
+  title    String
   users    Users  @relation(fields: [userId], references: [id])
   userId   Int
 
