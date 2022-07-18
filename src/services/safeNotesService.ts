@@ -7,7 +7,7 @@ async function create(
   createSafeNotesData: CreateSafeNotesData,
   userId: number
 ) {
-  await validateTitle(createSafeNotesData.title);
+  await validateTitle(createSafeNotesData.title, userId);
 
   await safeNotesRepository.insert({
     userId,
@@ -16,42 +16,45 @@ async function create(
 }
 
 async function get(safeNoteId: number, userId: number) {
-  await validateUser(userId);
+  const safeNotePerUser = await validateUser(userId);
 
-  if (safeNoteId) return await getSafeNoteById(safeNoteId);
+  if (safeNoteId) return getSafeNoteById(safeNoteId, safeNotePerUser);
 
-  const safeNotes = await safeNotesRepository.findMany();
-  if (!safeNotes) throw handleErrors.notFoundError("safe note");
-
-  return [...safeNotes];
+  return [...safeNotePerUser];
 }
 
-async function getSafeNoteById(safeNoteId: number) {
-  const safeNote = await safeNotesRepository.getById(safeNoteId);
+function getSafeNoteById(safeNoteId: number, safeNotes: SafeNotes[]) {
+  const safeNote = safeNotes.filter((safeNote) => safeNote.id === safeNoteId);
 
-  if (!safeNote) throw handleErrors.notFoundError("safe note");
+  if (safeNote.length === 0) throw handleErrors.notFoundError("safe note");
 
   return safeNote;
 }
 
-async function deleteSafeNote(safeNoteId: number) {
-  const safeNote = await getSafeNoteById(safeNoteId);
+async function deleteSafeNote(safeNoteId: number, userId: number) {
+  const safeNotesPerUser = await validateUser(userId);
 
-  await validateUser(safeNote.userId);
+  const safeNote = getSafeNoteById(safeNoteId, safeNotesPerUser);
 
-  await safeNotesRepository.deleteSafeNote(safeNoteId);
+  await safeNotesRepository.deleteSafeNote(safeNote[0].id);
 }
 
 async function validateUser(id: number) {
-  const safeNoteUser = await safeNotesRepository.getByUserId(id);
+  const safeNotes = await safeNotesRepository.getByUserId(id);
 
-  if (!safeNoteUser) throw handleErrors.badRequestError("safe note");
+  if (safeNotes.length === 0) throw handleErrors.badRequestError("user");
+
+  return safeNotes;
 }
 
-async function validateTitle(title: string) {
-  const safeNote = await safeNotesRepository.getByTitle(title);
+async function validateTitle(title: string, userId: number) {
+  const filterSafeNotesByUserId = await safeNotesRepository.getByUserId(userId);
 
-  if (safeNote) throw handleErrors.conflictError("title");
+  const containsTitle = filterSafeNotesByUserId.map(
+    (safeNote) => safeNote.title === title
+  );
+
+  if (containsTitle.includes(true)) throw handleErrors.conflictError("title");
 }
 
 const safeNotesService = { create, get, deleteSafeNote };

@@ -19,36 +19,35 @@ async function create(createWifiData: CreateWifiData, userId: number) {
 }
 
 async function get(wifiId: number, userId: number) {
-  await validateUser(userId);
+  const wifiPerUser = await validateUser(userId);
 
-  if (wifiId) return await getWifiById(wifiId);
+  if (wifiId) return getWifiById(wifiId, wifiPerUser);
 
-  const wifis = await wifiRepository.findMany();
-  if (!wifis) throw handleErrors.notFoundError("wi-fi");
-
-  return [...wifis];
+  return [...wifiPerUser];
 }
 
-async function getWifiById(wifiId: number) {
-  const wifi = await wifiRepository.getById(wifiId);
+function getWifiById(wifiId: number, wifis: Wifi[]) {
+  const wifi = wifis.filter((wifi) => wifi.id === wifiId);
 
-  if (!wifi) throw handleErrors.notFoundError("wi-fi");
+  if (wifi.length === 0) throw handleErrors.notFoundError("wi-fi");
 
   return wifi;
 }
 
-async function deleteWifi(wifiId: number) {
-  const wifi = await getWifiById(wifiId);
+async function deleteWifi(wifiId: number, userId: number) {
+  const wifiPerUser = await validateUser(userId);
 
-  await validateUser(wifi.userId);
+  const wifi = getWifiById(wifiId, wifiPerUser);
 
-  await wifiRepository.deleteWifi(wifiId);
+  await wifiRepository.deleteWifi(wifi[0].id);
 }
 
 async function validateUser(id: number) {
-  const wifiUser = await wifiRepository.getByUserId(id);
+  const wifi = await wifiRepository.getByUserId(id);
 
-  if (!wifiUser) throw handleErrors.badRequestError("wi-fi");
+  if (wifi.length === 0) throw handleErrors.badRequestError("user");
+
+  return wifi;
 }
 
 const wifiService = { create, get, deleteWifi };

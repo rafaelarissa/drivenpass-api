@@ -16,7 +16,7 @@ async function getById(id: number) {
 }
 
 async function getByUserId(userId: number) {
-  return prisma.wifi.findFirst({ where: { userId } });
+  return prisma.wifi.findMany({ where: { userId } });
 }
 
 async function deleteWifi(id: number) {

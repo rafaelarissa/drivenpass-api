@@ -66,7 +66,7 @@ function decryptPassword(password: string) {
 async function validateUser(id: number) {
   const credentials = await credentialRepository.getByUserId(id);
 
-  if (!credentials) throw handleErrors.badRequestError("credential");
+  if (credentials.length === 0) throw handleErrors.badRequestError("user");
 
   return credentials;
 }

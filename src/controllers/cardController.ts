@@ -20,7 +20,8 @@ export async function get(req: Request, res: Response) {
 
 export async function deleteCard(req: Request, res: Response) {
   const { id } = req.params;
+  const userId = res.locals.user.id;
 
-  await cardService.deleteCard(Number(id));
+  await cardService.deleteCard(Number(id), userId);
   res.sendStatus(200);
 }

@@ -20,7 +20,7 @@ async function getById(id: number) {
 }
 
 async function getByUserId(userId: number) {
-  return prisma.safeNotes.findFirst({ where: { userId } });
+  return prisma.safeNotes.findMany({ where: { userId } });
 }
 
 async function deleteSafeNote(id: number) {

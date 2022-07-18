@@ -9,7 +9,7 @@ const cryptr = new Cryptr(process.env.SECRET);
 
 export type CreateCardData = Omit<Cards, "id">;
 async function create(createCardData: CreateCardData, userId: number) {
-  await validateTitle(createCardData.title);
+  await validateTitle(createCardData.title, userId);
 
   const encryptedPassword = cryptr.encrypt(createCardData.password);
   const encryptedCVV = cryptr.encrypt(createCardData.securityCode);
@@ -23,42 +23,43 @@ async function create(createCardData: CreateCardData, userId: number) {
 }
 
 async function get(cardId: number, userId: number) {
-  await validateUser(userId);
+  const cardPerUser = await validateUser(userId);
 
-  if (cardId) return await getCardById(cardId);
+  if (cardId) return getCardById(cardId, cardPerUser);
 
-  const cards = await cardRepository.findMany();
-  if (!cards) throw handleErrors.notFoundError("card");
-
-  return [...cards];
+  return [...cardPerUser];
 }
 
-async function getCardById(cardId: number) {
-  const card = await cardRepository.getById(cardId);
+function getCardById(cardId: number, cards: Cards[]) {
+  const card = cards.filter((card) => card.id === cardId);
 
-  if (!card) throw handleErrors.notFoundError("card");
+  if (card.length === 0) throw handleErrors.notFoundError("card");
 
   return card;
 }
 
-async function deleteCard(cardId: number) {
-  const card = await getCardById(cardId);
+async function deleteCard(cardId: number, userId: number) {
+  const cardsPerUser = await validateUser(userId);
 
-  await validateUser(card.userId);
+  const card = getCardById(cardId, cardsPerUser);
 
-  await cardRepository.deleteCard(cardId);
+  await cardRepository.deleteCard(card[0].id);
 }
 
 async function validateUser(id: number) {
-  const cardUser = await cardRepository.getByUserId(id);
+  const cards = await cardRepository.getByUserId(id);
 
-  if (!cardUser) throw handleErrors.badRequestError("card");
+  if (cards.length === 0) throw handleErrors.badRequestError("user");
+
+  return cards;
 }
 
-async function validateTitle(title: string) {
-  const card = await cardRepository.getByTitle(title);
+async function validateTitle(title: string, userId: number) {
+  const filterCardsByUserId = await cardRepository.getByUserId(userId);
 
-  if (card) throw handleErrors.conflictError("title");
+  const containsTitle = filterCardsByUserId.map((card) => card.title === title);
+
+  if (containsTitle.includes(true)) throw handleErrors.conflictError("title");
 }
 
 const cardService = { create, get, deleteCard };

@@ -22,7 +22,8 @@ export async function get(req: Request, res: Response) {
 
 export async function deleteSafeNote(req: Request, res: Response) {
   const { id } = req.params;
+  const userId = res.locals.user.id;
 
-  await safeNotesService.deleteSafeNote(Number(id));
+  await safeNotesService.deleteSafeNote(Number(id), userId);
   res.sendStatus(200);
 }

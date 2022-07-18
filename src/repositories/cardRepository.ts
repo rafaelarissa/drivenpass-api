@@ -20,7 +20,7 @@ async function getById(id: number) {
 }
 
 async function getByUserId(userId: number) {
-  return prisma.cards.findFirst({ where: { userId } });
+  return prisma.cards.findMany({ where: { userId } });
 }
 
 async function deleteCard(id: number) {
