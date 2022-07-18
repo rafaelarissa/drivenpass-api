@@ -20,7 +20,7 @@ async function getById(id: number) {
 }
 
 async function getByUserId(userId: number) {
-  return prisma.crendentials.findFirst({ where: { userId } });
+  return prisma.crendentials.findMany({ where: { userId } });
 }
 
 async function deleteCredential(id: number) {

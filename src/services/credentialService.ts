@@ -12,7 +12,7 @@ async function create(
   createCredentialData: CreateCredentialData,
   userId: number
 ) {
-  await validateTitle(createCredentialData.title);
+  await validateTitle(createCredentialData.title, userId);
 
   const encryptedPassword = cryptr.encrypt(createCredentialData.password);
 
@@ -24,36 +24,37 @@ async function create(
 }
 
 async function get(credentialId: number, userId: number) {
-  await validateUser(userId);
+  const credentialPerUser = await validateUser(userId);
 
-  if (credentialId) return await getCredentialById(credentialId);
+  if (credentialId) return getCredentialById(credentialId, credentialPerUser);
 
-  const credentials = await credentialRepository.findMany();
-  if (!credentials) throw handleErrors.notFoundError("credential");
-
-  credentials.map((credential) => {
+  credentialPerUser.map((credential) => {
     credential.password = decryptPassword(credential.password);
   });
 
-  return { ...credentials };
+  return { ...credentialPerUser };
 }
 
-async function getCredentialById(credentialId: number) {
-  const credential = await credentialRepository.getById(credentialId);
+function getCredentialById(credentialId: number, credentials: Crendentials[]) {
+  const credential = credentials.filter(
+    (credential) => credential.id === credentialId
+  );
 
-  if (!credential) throw handleErrors.notFoundError("credential");
+  if (credential.length === 0) throw handleErrors.notFoundError("credential");
 
-  const decryptedPassword = decryptPassword(credential.password);
+  credential.map((credential) => {
+    credential.password = decryptPassword(credential.password);
+  });
 
-  return { ...credential, password: decryptedPassword };
+  return credential;
 }
 
-async function deleteCredential(credentialId: number) {
-  const credential = await getCredentialById(credentialId);
+async function deleteCredential(credentialId: number, userId: number) {
+  const credentialsPerUser = await validateUser(userId);
 
-  await validateUser(credential.userId);
+  const credential = getCredentialById(credentialId, credentialsPerUser);
 
-  await credentialRepository.deleteCredential(credentialId);
+  await credentialRepository.deleteCredential(credential[0].id);
 }
 
 function decryptPassword(password: string) {
@@ -63,15 +64,23 @@ function decryptPassword(password: string) {
 }
 
 async function validateUser(id: number) {
-  const credentialUser = await credentialRepository.getByUserId(id);
+  const credentials = await credentialRepository.getByUserId(id);
 
-  if (!credentialUser) throw handleErrors.badRequestError("credential");
+  if (!credentials) throw handleErrors.badRequestError("credential");
+
+  return credentials;
 }
 
-async function validateTitle(title: string) {
-  const credential = await credentialRepository.getByTitle(title);
+async function validateTitle(title: string, userId: number) {
+  const filterCredentialsByUserId = await credentialRepository.getByUserId(
+    userId
+  );
 
-  if (credential) throw handleErrors.conflictError("title");
+  const containsTitle = filterCredentialsByUserId.map(
+    (credential) => credential.title === title
+  );
+
+  if (containsTitle.includes(true)) throw handleErrors.conflictError("title");
 }
 
 const credentialService = { create, get, deleteCredential };
