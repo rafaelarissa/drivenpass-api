@@ -9,7 +9,6 @@ The application is a password manager API, you can storage credentials, card inf
 ## Technologies
 
   ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
-   <img style='margin: 5px' src='https://img.shields.io/badge/Context-API-blue?style=for-the-badge&logo=appveyor'>
   ![Postgresql](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
   ![Typescript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 
